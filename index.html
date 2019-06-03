@@ -1,0 +1,245 @@
+﻿<?php
+session_start();
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="pl-PL" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Transport</title>
+    <link rel="stylesheet" href="StyleSheet2.css" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,900&amp;subset=latin-ext" rel="stylesheet">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type='text/javascript' src="Script1.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="_styles.css" media="screen" />
+    <script type="text/javascript">
+        //Drag and drop - author - The CSS Ninja
+		var TCNDDU = TCNDDU || {};
+
+		(function(){
+			var dropContainer,
+				dropListing,
+				imgPreviewFragment = document.createDocumentFragment(),
+				domElements;
+
+			TCNDDU.setup = function () {
+				dropListing = document.getElementById("output-listing01");
+				dropContainer = document.getElementById("output");
+
+				dropContainer.addEventListener("dragenter", function(event){dropListing.innerHTML = '';event.stopPropagation();event.preventDefault();}, false);
+				dropContainer.addEventListener("dragover", function(event){event.stopPropagation();event.preventDefault();}, false);
+				dropContainer.addEventListener("drop", TCNDDU.handleDrop, false);
+			};
+
+			TCNDDU.uploadProgressXHR = function (event) {
+				if (event.lengthComputable) {
+					var percentage = Math.round((event.loaded * 100) / event.total),
+						loaderIndicator = event.target.log.firstChild.nextSibling.firstChild;
+						console.log(loaderIndicator);
+						console.log(event.target.self);
+						console.log(event.target);
+					if (percentage < 100) {
+						loaderIndicator.style.width = (percentage*2) + "px";
+						loaderIndicator.textContent = percentage + "%";
+					}
+				}
+			};
+
+			TCNDDU.loadedXHR = function (event) {
+				var currentImageItem = event.target.log;
+
+				currentImageItem.className = "loaded";
+				console.log("xhr upload of "+event.target.log.id+" complete");
+			};
+
+			TCNDDU.uploadError = function (error) {
+				console.log("error: " + error.code);
+			};
+
+			TCNDDU.processXHR = function (file, index, bin) {
+				var xhr = new XMLHttpRequest(),
+					container = document.getElementById("item"+index),
+					fileUpload = xhr.upload,
+					progressDomElements = [
+						document.createElement('div'),
+						document.createElement('p')
+					];
+
+				progressDomElements[0].className = "progressBar";
+				progressDomElements[1].textContent = "0%";
+				progressDomElements[0].appendChild(progressDomElements[1]);
+
+				container.appendChild(progressDomElements[0]);
+
+				fileUpload.log = container;
+
+				fileUpload.addEventListener("progress", function(event) {
+					if (event.lengthComputable) {
+						var percentage = Math.round((event.loaded * 100) / event.total),
+						loaderIndicator = container.firstChild.nextSibling.firstChild;
+						if (percentage < 100) {
+							loaderIndicator.style.width = (percentage*2) + "px";
+							loaderIndicator.textContent = percentage + "%";
+						}
+					}
+				}, false);
+
+				fileUpload.addEventListener("load", function(event) {
+					container.className = "loaded";
+					console.log("xhr upload of "+container.id+" complete");
+				}, false);
+
+				fileUpload.addEventListener("error", TCNDDU.uploadError, false);
+
+				xhr.open("POST", "../upload.php");
+				xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+				xhr.sendAsBinary(bin)
+			};
+
+			TCNDDU.handleDrop = function (event) {
+				var dt = event.dataTransfer,
+					files = dt.files,
+					count = files.length;
+
+				event.stopPropagation();
+				event.preventDefault();
+
+				for (var i = 0; i < count; i++) {
+					if(files[i].size < 1048576) {
+						var file = files[i],
+							droppedFileName = file.name,
+							reader = new FileReader();
+							reader.index = i;
+							reader.file = file;
+
+						reader.addEventListener("loadend", TCNDDU.buildImageListItem, false);
+						reader.readAsDataURL(file);
+					} else {
+						alert("file is too big, needs to be below 1mb");
+					}
+				}
+			};
+
+			TCNDDU.buildImageListItem = function (event) {
+				domElements = [
+					document.createElement('li'),
+					document.createElement('a'),
+					document.createElement('img'),
+					document.createElement('p')
+				];
+
+				var data = event.target.result,
+					index = event.target.index,
+					file = event.target.file,
+					getBinaryDataReader = new FileReader();
+
+				domElements[2].src = data // base64 encoded string of local file(s)
+				domElements[2].width = 300;
+				domElements[2].height = 200;
+				domElements[1].appendChild(domElements[2]);
+				domElements[0].id = "item"+index;
+				domElements[0].appendChild(domElements[1]);
+
+				imgPreviewFragment.appendChild(domElements[0]);
+
+				dropListing.appendChild(imgPreviewFragment);
+
+				getBinaryDataReader.addEventListener("loadend", function(evt){TCNDDU.processXHR(file, index, evt.target.result);}, false);
+				getBinaryDataReader.readAsBinaryString(file);
+			};
+
+			window.addEventListener("load", TCNDDU.setup, false);
+		})();
+    </script>
+    </head>
+<body>
+
+  <a name="gora"></a>
+    <form action="script2.php" method="post" >
+        <div class="container">
+            
+            <div class="box rel">
+                <div class="im" >
+                   <a href="file:///C:/Users/Emilia/Desktop/Zadanie%20Lemon/HtmlPage2.html"> <img src="plain.png" /></a> 
+                </div>
+                <div class="napis">TRANSPORT LOTNICZY</div>
+            </div>
+
+            <div class="box">
+                <br />
+                Transport z :  <input name="transport_z" id="tr_z" onblur="javascript:test3(this.value)" required/>
+                <br /><br />
+                Transport do: <input name="transport_do" id="tr_do" onblur="javascript:test3(this.value)" required/>
+            </div>
+            <div class="box">
+                <p>Typ samolotu?</p>
+                <select name="Model" id="Model" onblur="javascript:test3_model(this.value)" required>
+                    <option selected="selected"></option>
+                    <option value="Airbus_A380">Airbus A380</option>
+                    <option value="Boeing_747">Boeing 747</option>
+                </select>
+            </div>
+            <div class="box">
+                <p>Data transportu :<p /><input type="text" id="datepicker" onblur="javascript:test3(this.value)" required>
+            </div>
+            <div class="box">
+                <p>Pliki :<p />
+                <div class="wrapper">
+                    <bbody>
+                        <div id="output" class="clearfix">
+                            <ul id="output-listing01"></ul>
+                        </div>
+                    </bbody>
+                    <br/>
+                    <input  type="file" name="plik" accept="image/jpeg,image/png,application/msword,application/pdf">
+                </div>
+            </div>
+            <div class="box">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Nazwa :</td>
+                            <td>Ciężar :</td>
+                            <td>Typ :</td>
+                        </tr>
+                    </thead>
+                    <tbody id="elements">
+                        <tr class="element">
+                            <td><input class ="text" type="text" name="nazwa" value="" id="nazwa" onblur="javascript:test3(this.value)" required/></td>
+                            <td><input class ="text" type="text" name="ciezar" value="" id="ciezar" onblur="javascript:test(this.value)"required /></td>
+                            <td>
+                                <select name="ladunek" required">
+                                    <option selected="selected"></option>
+                                    <option value="Ładunek zwykły">Ładunek zwykły</option>
+                                    <option value="Ładunek niebezpieczny">Ładunek niebezpieczny</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button id="add" class="button">Dodaj ładunek</button>
+            </div>
+            <div class="box">
+                <br/>
+                <div class="wrapper">
+                    <input class="button" type="submit" value="Wyślij" />
+                    <input class="button" type="reset" value="Wyczyść dane" />
+                </div>
+            </div>
+            
+            <div class="footer">
+            Zadanie - LemonMind - Transport - 2019
+                <br/>
+            Emilia Lewandowska
+            <a href="#gora" style="font-size:26px;">GÓRA</a>
+        </div>
+        </div>
+    </form>
+   
+</body>
+</html>
